@@ -1,0 +1,197 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Definisi struktur simpul linked list
+struct Node {
+    int data;
+    struct Node* next;
+};
+
+// Fungsi untuk menyisipkan simpul di awal linked list
+void insertAtBeginning(struct Node** head_ref, int new_data) {
+    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    new_node->data = new_data;
+    new_node->next = *head_ref;
+    *head_ref = new_node;
+}
+
+int pop(struct Node** head_ref) {
+    if (*head_ref == NULL) {
+        printf("Stack kosong.\n");
+        return -1; // Nilai khusus untuk menandakan bahwa stack kosong
+    }
+    struct Node* temp = *head_ref;
+    int popped_data = temp->data;
+    *head_ref = temp->next;
+    free(temp);
+    return popped_data;
+}
+
+// Fungsi untuk menampilkan isi linked list
+void displayList(struct Node* node) {
+    while (node != NULL) {
+        printf("%d -> ", node->data);
+        node = node->next;
+    }
+    printf("NULL\n");
+}
+
+// Fungsi untuk mencari sebuah simpul dalam linked list
+struct Node* searchNode(struct Node* head, int key) {
+    struct Node* current = head;
+    while (current != NULL) {
+        if (current->data == key) {
+            return current;
+        }
+        current = current->next;
+    }
+    return NULL;
+}
+
+// Fungsi untuk menghapus simpul tertentu dari linked list
+void deleteNode(struct Node** head_ref, int key) {
+    struct Node* temp = *head_ref;
+    struct Node* prev = NULL;
+
+    // Kasus khusus jika simpul yang akan dihapus adalah simpul pertama
+    if (temp != NULL && temp->data == key) {
+        *head_ref = temp->next;
+        free(temp);
+        printf("Simpul dengan data %d berhasil dihapus.\n", key);
+        return;
+    }
+
+    // Mencari simpul dengan data yang sesuai
+    while (temp != NULL && temp->data != key) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    // Jika simpul tidak ditemukan
+    if (temp == NULL) {
+        printf("Simpul dengan data %d tidak ditemukan.\n", key);
+        return;
+    }
+
+    // Menghapus simpul
+    prev->next = temp->next;
+    free(temp);
+    printf("Simpul dengan data %d berhasil dihapus.\n", key);
+}
+
+// Fungsi untuk menyisipkan simpul setelah simpul tertentu
+void insertAfter(struct Node* prev_node, int new_data) {
+    if (prev_node == NULL) {
+        printf("Simpul sebelumnya tidak boleh kosong.\n");
+        return;
+    }
+    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    new_node->data = new_data;
+    new_node->next = prev_node->next;
+    prev_node->next = new_node;
+    printf("Simpul dengan data %d berhasil disisipkan setelah simpul dengan data %d.\n", new_data, prev_node->data);
+}
+
+// Fungsi untuk menyisipkan simpul sebelum simpul tertentu
+void insertBefore(struct Node** head_ref, int key, int new_data) {
+    struct Node* prev = NULL;
+    struct Node* current = *head_ref;
+
+    // Kasus khusus jika simpul yang ingin disisipkan adalah simpul pertama
+    if (current != NULL && current->data == key) {
+        insertAtBeginning(head_ref, new_data);
+        return;
+    }
+
+    // Mencari simpul dengan data yang sesuai
+    while (current != NULL && current->data != key) {
+        prev = current;
+        current = current->next;
+    }
+
+    // Jika simpul tidak ditemukan
+    if (current == NULL) {
+        printf("Simpul dengan data %d tidak ditemukan.\n", key);
+        return;
+    }
+
+    // Menyisipkan simpul sebelum simpul dengan data yang sesuai
+    struct Node* new_node = (struct Node*)malloc(sizeof(struct Node));
+    new_node->data = new_data;
+    new_node->next = prev->next;
+    prev->next = new_node;
+    printf("Simpul dengan data %d berhasil disisipkan sebelum simpul dengan data %d.\n", new_data, key);
+}
+int main() {
+    struct Node* head = NULL;
+    int choice, data, searchKey;
+    struct Node* searchResult;
+
+    do {
+        printf("\nMenu Pilihan:\n");
+        printf("1. Push (Menyisipkan simpul di awal)\n");
+        printf("2. Menampilkan isi linked list\n");
+        printf("3. Mencari sebuah simpul\n");
+        printf("4. Pop (Mengambil data)\n");
+        printf("5. Menghapus data\n");
+        printf("6. menyisipkan data (setelah simpul tertentu)\n");
+        printf("7. menyisipkan data (sebelum simpul tertentu)\n");
+		printf("8. Exit\n");
+        printf("Pilih: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Masukkan data yang ingin disisipkan di awal: ");
+                scanf("%d", &data);
+                insertAtBeginning(&head, data);
+                printf("Simpul berhasil disisipkan di awal.\n");
+                break;
+            case 2:
+                printf("Isi linked list: ");
+                displayList(head);
+                break;
+            case 3:
+                printf("Masukkan data yang ingin dicari: ");
+                scanf("%d", &searchKey);
+                searchResult = searchNode(head, searchKey);
+                if (searchResult != NULL) {
+                    printf("Simpul dengan data %d ditemukan pada alamat %p.\n", searchKey, searchResult);
+                } else {
+                    printf("Simpul dengan data %d tidak ditemukan.\n", searchKey);
+                }
+                break;
+             case 4:
+                data = pop(&head);
+                if (data != -1)
+                    printf("Data yang diambil dari stack: %d\n", data);
+                break;
+            case 5:
+			    printf("Masukkan data yang ingin dihapus: ");
+			    scanf("%d", &data);
+			    deleteNode(&head, data);
+			    break;
+			case 6:
+			    printf("Masukkan data yang ingin disisipkan setelahnya: ");
+			    scanf("%d", &searchKey);
+			    printf("Masukkan data yang ingin disisipkan: ");
+			    scanf("%d", &data);
+			    insertAfter(searchNode(head, searchKey), data);
+			    break;
+			case 7:
+			    printf("Masukkan data yang ingin disisipkan sebelumnya: ");
+			    scanf("%d", &searchKey);
+			    printf("Masukkan data yang ingin disisipkan: ");
+			    scanf("%d", &data);
+			    insertBefore(&head, searchKey, data);
+			    break;
+            case 8:
+                printf("Program selesai.\n");
+                break;
+            default:
+                printf("Pilihan tidak valid!\n");
+        }
+    } while (choice != 8);
+
+    return 0;
+} 
