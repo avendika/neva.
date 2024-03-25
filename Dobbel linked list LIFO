@@ -1,0 +1,152 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// Struktur simpul (node) dari double linked list
+struct Node {
+    int data;
+    struct Node* prev;
+    struct Node* next;
+};
+
+// Fungsi untuk menyisipkan simpul di akhir linked list
+void sisipkanDiAkhir(struct Node** kepala_ref, int data_baru) {
+    // Membuat simpul baru
+    struct Node* simpul_baru = (struct Node*)malloc(sizeof(struct Node));
+    struct Node* terakhir = *kepala_ref;
+    
+    // Mengatur data simpul baru
+    simpul_baru->data = data_baru;
+    simpul_baru->next = NULL;
+
+    // Jika linked list kosong, simpul baru menjadi simpul pertama
+    if (*kepala_ref == NULL) {
+        simpul_baru->prev = NULL;
+        *kepala_ref = simpul_baru;
+        return;
+    }
+
+    // Traverse hingga simpul terakhir
+    while (terakhir->next != NULL)
+        terakhir = terakhir->next;
+
+    // Mengatur pointer next simpul terakhir
+    terakhir->next = simpul_baru;
+
+    // Mengatur pointer prev simpul baru
+    simpul_baru->prev = terakhir;
+}
+
+// Fungsi untuk menampilkan isi linked list
+void tampilkanLinkedlist(struct Node* node) {
+    while (node != NULL) {
+        printf("		%d \n", node->data);
+        node = node->next;
+    }
+    printf("\n");
+}
+
+// Fungsi untuk mencari simpul dengan data tertentu
+struct Node* cariSimpul(struct Node* kepala, int kunci) {
+    struct Node* saat_ini = kepala;
+    // Traverse linked list hingga menemukan data yang dicari atau mencapai akhir
+    while (saat_ini != NULL) {
+        if (saat_ini->data == kunci)
+            return saat_ini;
+        saat_ini = saat_ini->next;
+    }
+    return NULL; // Return NULL jika data tidak ditemukan
+}
+
+// Fungsi untuk menghapus simpul tertentu
+void hapusSimpul(struct Node** kepala_ref, struct Node* del) {
+    // Kasus dasar
+    if (*kepala_ref == NULL || del == NULL)
+        return;
+
+    // Jika simpul yang dihapus adalah simpul pertama
+    if (*kepala_ref == del)
+        *kepala_ref = del->next;
+
+    // Mengubah pointer next dari simpul sebelumnya jika tidak NULL
+    if (del->prev != NULL)
+        del->prev->next = del->next;
+
+    // Mengubah pointer prev dari simpul selanjutnya jika tidak NULL
+    if (del->next != NULL)
+        del->next->prev = del->prev;
+
+    // Menghapus simpul
+    free(del);
+}
+
+// Fungsi untuk membebaskan memori dari linked list
+void hapusLinkedlist(struct Node** kepala_ref) {
+    struct Node* saat_ini = *kepala_ref;
+    struct Node* berikutnya;
+
+    while (saat_ini != NULL) {
+        berikutnya = saat_ini->next;
+        free(saat_ini);
+        saat_ini = berikutnya;
+    }
+
+    *kepala_ref = NULL;
+}
+
+int main() {
+    struct Node* kepala = NULL; // Inisialisasi linked list kosong
+
+    int pilihan, data, kunci;
+    struct Node* simpul_ditemukan;
+
+    do {
+        printf("\nMenu Pilihan:\n");
+        printf("1. Menyisipkan simpul Dobbel linked list dengan Prinsip LIFO\n");
+        printf("2. Menampilkan isi Dobbel linked list\n");
+        printf("3. Mencari sebuah simpul\n");
+        printf("4. Menghapus simpul tertentu\n");
+        printf("5. Keluar\n");
+        printf("Pilih: ");
+        scanf("%d", &pilihan);
+
+        switch (pilihan) {
+            case 1:
+                printf("Masukkan data baru: ");
+                scanf("%d", &data);
+                sisipkanDiAkhir(&kepala, data);
+                break;
+            case 2:
+                printf("Isi linked list: \n");
+                tampilkanLinkedlist(kepala);
+                break;
+            case 3:
+                printf("Masukkan data yang ingin dicari: ");
+                scanf("%d", &kunci);
+                simpul_ditemukan = cariSimpul(kepala, kunci);
+                if (simpul_ditemukan != NULL)
+                    printf("Data ditemukan\n");
+                else
+                    printf("Data tidak ditemukan\n");
+                break;
+            case 4:
+                printf("Masukkan data yang ingin dihapus: ");
+                scanf("%d", &kunci);
+                simpul_ditemukan = cariSimpul(kepala, kunci);
+                if (simpul_ditemukan != NULL) {
+                    hapusSimpul(&kepala, simpul_ditemukan);
+                    printf("Simpul dengan data %d telah dihapus\n", kunci);
+                } else {
+                    printf("Data tidak ditemukan, tidak ada yang dihapus\n");
+                }
+                break;
+            case 5:
+                printf("Keluar...\n");
+                hapusLinkedlist(&kepala); // Bebaskan memori dari linked list sebelum keluar
+                break;
+            default:
+                printf("Pilihan tidak valid, silakan pilih kembali\n");
+        }
+    } while (pilihan != 5);
+
+    return 0;
+}
